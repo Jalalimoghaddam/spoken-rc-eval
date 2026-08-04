@@ -39,11 +39,17 @@ This project builds a pipeline that automatically evaluates short spoken answers
 - Understood the purpose of `answer_start`: it disambiguates *which occurrence* of a repeated phrase in the passage is the correct answer, rather than indicating grading leniency.
 - Saved exploration work as a Jupyter notebook (`notebooks/01_explore_squad.ipynb`) and committed it to the repository.
 
+**Task 4 — Dataset Loader**
+- Built `src/load_dataset.py`, a reusable script that flattens the nested SQuAD JSON structure (article → paragraph → question/answer pairs) into a flat table using a triple-nested loop.
+- Wrapped the loading logic in a function, `load_squad(json_path)`, so the same code could process both the train and dev splits without duplication.
+- For each question, extracted the passage, question text, and the first reference answer, then converted the results into a pandas DataFrame and saved as CSV.
+- Verified the output size against expectations: 87,599 rows for the train split and 10,570 rows for the dev split, matching the known size of SQuAD v1.1.
+- Confirmed the generated CSVs (`data/squad_train.csv`, `data/squad_dev.csv`) stay untracked by Git as intended, while the script itself (`src/load_dataset.py`) was committed and pushed.
+
 ---
 
 ## Next Steps
 
-- **Task 4** — Build `load_dataset.py` to programmatically extract passage/question/answer triples from the JSON and save them as a CSV.
 - **Task 5** — Construct a small (~50 question) evaluation subset with reference answers for later testing.
 - **Phase 3** onward — Integrate Whisper for speech recognition on spoken answers.
 
