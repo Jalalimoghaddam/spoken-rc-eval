@@ -46,12 +46,21 @@ This project builds a pipeline that automatically evaluates short spoken answers
 - Verified the output size against expectations: 87,599 rows for the train split and 10,570 rows for the dev split, matching the known size of SQuAD v1.1.
 - Confirmed the generated CSVs (`data/squad_train.csv`, `data/squad_dev.csv`) stay untracked by Git as intended, while the script itself (`src/load_dataset.py`) was committed and pushed.
 
+**Task 5 — Small Evaluation Dataset**
+- Analyzed the distribution of reference answer lengths in the dev set (mean ~3 words, median 2 words, range 1–29 words) to inform a balanced selection strategy.
+- Split candidate questions into three length-based buckets — short (1 word), medium (2–4 words), and long (5+ words) — to ensure the evaluation set covers a variety of answer types rather than being dominated by short factual answers.
+- Hand-picked 50 questions with good topical and question-type variety (who/what/when/where/how many), drawn from random candidate pools within each bucket: 15 short, 25 medium, 10 long.
+- Combined the selections into a single evaluation set and saved it as `data/eval_set.csv`, which will serve as the fixed benchmark for later human-vs-system comparison (Phase 6 evaluation).
+- Resolved a Jupyter/Python environment mismatch (notebook was running Anaconda's Python instead of the project's virtual environment), by registering the venv as a proper Jupyter kernel — an important fix to avoid confusing package errors later in the project.
+
+**Phase 2 (Dataset) is now complete.**
+
 ---
 
 ## Next Steps
 
-- **Task 5** — Construct a small (~50 question) evaluation subset with reference answers for later testing.
-- **Phase 3** onward — Integrate Whisper for speech recognition on spoken answers.
+- **Task 6** — Install Whisper (via `faster-whisper`), download a model, and test transcription on sample audio.
+- **Phase 3** — Speech Recognition: prepare spoken answers (recorded or TTS-generated) and batch-transcribe them.
 
 ---
 
