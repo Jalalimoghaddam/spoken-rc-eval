@@ -55,12 +55,21 @@ This project builds a pipeline that automatically evaluates short spoken answers
 
 **Phase 2 (Dataset) is now complete.**
 
+### Phase 3 — Speech Recognition
+
+**Task 6 — Install Whisper**
+- Loaded the `tiny` Whisper model via `faster-whisper` (choosing the smallest model first to validate the pipeline quickly on CPU before optimizing for accuracy with larger models later).
+- Confirmed models are cached automatically by Hugging Face's caching system (outside the project folder, in the standard shared cache location) rather than needing manual download management.
+- Ran a first real transcription test on a sample audio file (an airport-announcement listening exercise), successfully producing accurate, timestamped, multi-segment transcription output — including correctly identifying the spoken language with high confidence.
+- Debugged a working-directory mismatch between notebook sessions (the same class of issue encountered in Task 5), reinforcing the practice of verifying paths with `os.getcwd()` before troubleshooting further.
+- Implemented a custom timestamp formatter to convert raw seconds into the `HH:MM:SS,mmm` format, and used it to export the transcription as a properly structured `.srt` subtitle file — the task's "save transcript" requirement.
+
 ---
 
 ## Next Steps
 
-- **Task 6** — Install Whisper (via `faster-whisper`), download a model, and test transcription on sample audio.
-- **Phase 3** — Speech Recognition: prepare spoken answers (recorded or TTS-generated) and batch-transcribe them.
+- **Task 7** — Prepare spoken answers (record audio or generate via text-to-speech) and organize them in `data/audio/`.
+- **Task 8** — Build `transcribe.py` for batch transcription across multiple audio files, outputting `transcript.csv`.
 
 ---
 
