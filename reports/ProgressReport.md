@@ -8,7 +8,23 @@
 
 ## Overview
 
-This project builds a pipeline that automatically evaluates short spoken answers to reading comprehension questions, using automatic speech recognition (Whisper) and semantic similarity (Sentence-BERT) instead of rigid exact-match grading. Work is organized into 8 phases and 22 tasks; this report covers progress through **Phase 2 (Dataset)**.
+This project builds a pipeline that automatically evaluates short spoken answers to reading comprehension questions, using automatic speech recognition (Whisper) and semantic similarity (Sentence-BERT) instead of rigid exact-match grading. Work is organized into 8 phases and 22 tasks.
+
+### The problem
+
+Reading comprehension is usually tested with multiple-choice questions because they're easy to grade — but they don't really show how well a student understood the material, since answers can be guessed. A better test is to have students answer **in their own words, out loud**. The challenge is that automatically grading spoken answers is hard: the same correct idea can be expressed in countless different ways, and speech adds transcription errors on top of that.
+
+### How the pipeline solves it
+
+1. **Speech recognition (ASR) — Whisper.** Converts the student's spoken answer into text.
+2. **Semantic similarity — Sentence-BERT.** Compares the transcribed text to the reference answer based on *meaning*, not exact wording — so a differently-phrased but correct answer still scores well.
+3. **Threshold-based decision.** The similarity score (e.g., 0–1) is turned into a label: **Correct / Incorrect / Borderline**, based on a chosen cutoff.
+
+This helps students get faster, fairer feedback (since paraphrasing isn't penalized) and helps teachers by partially automating grading.
+
+### Data source
+
+**SQuAD v1.1** — a widely-used dataset of roughly 100,000 question-answer pairs built from Wikipedia articles. Each item provides a **passage** (the reading material), a **question**, and a **reference answer**.
 
 ---
 
@@ -64,12 +80,19 @@ This project builds a pipeline that automatically evaluates short spoken answers
 - Debugged a working-directory mismatch between notebook sessions (the same class of issue encountered in Task 5), reinforcing the practice of verifying paths with `os.getcwd()` before troubleshooting further.
 - Implemented a custom timestamp formatter to convert raw seconds into the `HH:MM:SS,mmm` format, and used it to export the transcription as a properly structured `.srt` subtitle file — the task's "save transcript" requirement.
 
+**Task 7 — Prepare Spoken Answers**
+- Decided on a fully text-to-speech (TTS) approach for generating spoken versions of the 50 evaluation answers, favoring feasibility over the higher realism (but much higher effort) of self-recording.
+- Split the 50 answers into two batches of 25 (shuffled first to keep a fair mix of short/medium/long answers in each half), generating audio with two different TTS engines for source variety:
+  - **gTTS** (Google Text-to-Speech, online, more natural-sounding) — `data/audio/gtts/`
+  - **pyttsx3** (offline, uses Windows system voices) — `data/audio/pyttsx3/`
+- Debugged a missing Windows dependency (`pywin32`/`pywintypes`) required by `pyttsx3`'s offline speech engine, and a follow-up `NameError` caused by a Jupyter kernel restart clearing previously imported modules and variables.
+- Built `data/audio_manifest.csv`, a mapping file linking every generated audio file back to its passage, question, reference answer, and answer length — this will be the key input for Task 8's batch transcription.
+
 ---
 
 ## Next Steps
 
-- **Task 7** — Prepare spoken answers (record audio or generate via text-to-speech) and organize them in `data/audio/`.
-- **Task 8** — Build `transcribe.py` for batch transcription across multiple audio files, outputting `transcript.csv`.
+- **Task 8** — Build `transcribe.py` for batch transcription across all 50 audio files (using the manifest), outputting `transcript.csv` for later comparison against reference answers.
 
 ---
 
