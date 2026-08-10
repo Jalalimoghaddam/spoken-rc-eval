@@ -88,11 +88,24 @@ This helps students get faster, fairer feedback (since paraphrasing isn't penali
 - Debugged a missing Windows dependency (`pywin32`/`pywintypes`) required by `pyttsx3`'s offline speech engine, and a follow-up `NameError` caused by a Jupyter kernel restart clearing previously imported modules and variables.
 - Built `data/audio_manifest.csv`, a mapping file linking every generated audio file back to its passage, question, reference answer, and answer length — this will be the key input for Task 8's batch transcription.
 
+**Task 8 — Batch Transcription**
+- Built a reusable `transcribe_audio()` function that runs Whisper on a single audio file and concatenates its timestamped segments into one clean transcript string.
+- Wrote a loop that applies this function to all 50 audio files listed in `data/audio_manifest.csv`, adding the results as a new `transcript` column, and saved the result as `data/transcript.csv`.
+- Resolved a working-directory path issue affecting both the manifest file and the individual audio file paths referenced inside it (the same class of relative-path issue encountered in earlier tasks, now appearing in two places within the same script).
+- Reviewed the actual transcription output against the reference answers and identified concrete ASR error patterns that will be directly relevant to later semantic similarity testing, including:
+  - Misheard proper nouns/technical terms (e.g., "Lower Lorraine" transcribed as "Lower the rain"; "cilia" heard as "sillier")
+  - Notation expanded into natural language (e.g., "10,000 m2" transcribed as "10,000 square meters" — correct in meaning, different in exact text)
+  - Minor phonetic misspellings of names (e.g., "Bert Bolin" → "Bert Bollin")
+- These real transcription imperfections form the actual test conditions that the semantic similarity model (Phase 4) will need to handle — validating the project's core premise before that.
+
+**Phase 3 (Speech Recognition) is now complete.**
+
 ---
 
 ## Next Steps
 
-- **Task 8** — Build `transcribe.py` for batch transcription across all 50 audio files (using the manifest), outputting `transcript.csv` for later comparison against reference answers.
+- **Task 9** — Install Sentence-BERT, download a pretrained model, and test generating embeddings.
+- **Phase 4** — Semantic Similarity: compare identical answers, paraphrases, and wrong answers to understand how similarity scores behave before building the full scoring pipeline.
 
 ---
 
