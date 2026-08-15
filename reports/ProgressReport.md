@@ -122,10 +122,32 @@ This helps students get faster, fairer feedback (since paraphrasing isn't penali
 
 ---
 
+## VG-Level Extension: Hybrid Similarity Scoring
+
+Following the numeric-answer limitation discovered in Task 10, a solution was designed and implemented to specifically address it, going beyond the base task requirements.
+
+**Problem recap:** Sentence-BERT's semantic similarity treats numbers as ordinary tokens rather than facts requiring exact matching, causing factually wrong answers with matching sentence structure (e.g., a different date or measurement) to score misleadingly high — sometimes higher than genuinely correct paraphrases.
+
+**Solution implemented — `hybrid_similarity()`:** a wrapper function that combines semantic similarity with an exact-match check on numeric content:
+1. Computes the standard Sentence-BERT cosine similarity between the reference answer and the transcript.
+2. Extracts all numbers from both texts using a regular expression, with number-format normalization (removing thousands-separator commas via a targeted regex pattern, `(\d),(\d{3})`, rather than blindly stripping all commas — this specifically avoids incorrectly merging comma-separated lists of distinct numbers, e.g., "1,2,3", into a single number).
+3. Decision logic: if the reference answer contains no numbers, the semantic similarity score is used unchanged. If it does contain numbers, the transcript's numbers must match exactly (as a set, so order doesn't matter) — if they match, the semantic score is used as-is; if they don't match, the similarity is forced to 0, regardless of how high the semantic score was.
+4. A stricter (rather than partial-credit/weighted) penalty was deliberately chosen for mismatched numbers, as a reasonable trade-off between correctness and implementation complexity for this project's scope.
+
+**Verified results:**
+| Comparison | Raw semantic similarity | Hybrid similarity |
+|---|---|---|
+| "45–60 nanometers across" vs. "20–30 nanometers across" (wrong number) | 0.943 (misleadingly high) | **0** (correctly rejected) |
+| "It was founded in 1852" vs. "The museum opened in 1852" (correct paraphrase, matching number) | 0.625 | **0.625** (unaffected) |
+| "considerable impact" vs. "a significant effect" (no numbers involved) | 0.670 | **0.670** (unaffected) |
+
+This confirms the fix directly resolves the Task 10 finding without disrupting normal paraphrase scoring, and will be incorporated into the main pipeline in Task 11.
+
+---
+
 ## Next Steps
 
-- **Task 11** — Build `similarity.py`, a reusable pipeline script (reference answer → student answer → similarity score).
-- **Open design question carried forward:** whether/how to handle numeric-answer questions differently from free-text questions in the final scoring pipeline (see Task 10 finding above).
+- **Task 11** — Build `similarity.py`, incorporating `hybrid_similarity()` as the core scoring function of the pipeline (reference answer → student answer → similarity score).
 
 ---
 
