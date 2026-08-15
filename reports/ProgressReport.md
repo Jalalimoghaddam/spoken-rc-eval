@@ -100,12 +100,32 @@ This helps students get faster, fairer feedback (since paraphrasing isn't penali
 
 **Phase 3 (Speech Recognition) is now complete.**
 
+### Phase 4 — Semantic Similarity
+
+**Task 9 — Install Sentence-BERT**
+- Confirmed `sentence-transformers` was already installed (from Task 1's initial setup) and loaded a pretrained model, `all-MiniLM-L6-v2` — a lightweight, CPU-friendly Sentence-BERT model.
+- Generated a first sentence embedding and confirmed its shape: a 384-dimensional vector representing the sentence's meaning numerically.
+- Tested cosine similarity (the standard method for comparing embeddings by the angle between them, not raw magnitude) between:
+  - A reference answer and an ASR-style near-miss (e.g., "Saint Bernadette Soubirous" vs. "Saint Bernadette Sabirus") → similarity ≈ 0.83, correctly identified as highly similar despite the textual difference
+  - The same reference answer and a completely unrelated sentence → similarity ≈ 0.07, correctly identified as unrelated
+- This confirmed the core mechanism the project depends on: semantic similarity distinguishes meaning-preserving variation from true mismatches, unlike exact-text matching.
+
+**Task 10 — Similarity Experiment**
+- Systematically tested Sentence-BERT's cosine similarity across three categories using real answers from `eval_set.csv`:
+  - **Paraphrases** (same meaning, different wording, hand-written): similarity scores ranged **0.552–0.796**
+  - **Unrelated answers** (answer paired with an unrelated answer from a different question): similarity scores ranged **-0.041–0.177**
+  - A clear gap exists between these two ranges, suggesting a threshold somewhere around 0.3–0.4 could reasonably separate correct from incorrect answers (to be tuned properly in Task 13)
+- **Key finding — a significant limitation was discovered:** a third category, **"near-miss" answers** (same sentence structure and most wording, but with a critical factual detail changed — e.g., a different year, measurement, or number), was tested and produced unexpectedly *high* similarity scores that overlapped with or exceeded the paraphrase range. For example, "45–60 nanometers across" vs. "20–30 nanometers across" scored **0.943** — higher than any correct paraphrase — despite being factually wrong.
+  - **Cause:** Sentence-BERT appears to weight overall sentence structure and topic similarity heavily, but does not specifically verify that numeric values (dates, quantities, measurements) match — since numbers are treated as just another token rather than an exact fact to check.
+  - **Implication for the project:** semantic similarity alone is likely insufficient for grading answers where the reference answer is a number, date, or measurement. A possible mitigation (to revisit during Phase 5/6) is adding a supplementary exact-match or tolerance-based check specifically for numeric content, combined with (not replacing) the semantic similarity score — e.g., a weighted combination, or question-type-aware scoring rules.
+- Saved all experiment results to `data/similarity_experiment.csv` for reference during later threshold tuning and error analysis.
+
 ---
 
 ## Next Steps
 
-- **Task 9** — Install Sentence-BERT, download a pretrained model, and test generating embeddings.
-- **Phase 4** — Semantic Similarity: compare identical answers, paraphrases, and wrong answers to understand how similarity scores behave before building the full scoring pipeline.
+- **Task 11** — Build `similarity.py`, a reusable pipeline script (reference answer → student answer → similarity score).
+- **Open design question carried forward:** whether/how to handle numeric-answer questions differently from free-text questions in the final scoring pipeline (see Task 10 finding above).
 
 ---
 
