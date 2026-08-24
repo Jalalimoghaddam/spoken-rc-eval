@@ -143,11 +143,18 @@ Following the numeric-answer limitation discovered in Task 10, a solution was de
 
 This confirms the fix directly resolves the Task 10 finding without disrupting normal paraphrase scoring, and will be incorporated into the main pipeline in Task 11.
 
+**Task 11 — Build `similarity.py`**
+- Created `src/similarity.py`, a standalone, reusable script implementing the reference-answer → student-answer → similarity-score pipeline.
+- Structured the file following the established project pattern of loading expensive resources (the Sentence-BERT model) once at module load time rather than repeatedly inside a function, avoiding unnecessary reloading when the function is called many times (as it will be in Task 12, across all 50 evaluation rows).
+- Incorporated the `hybrid_similarity()` function (including the numeric-mismatch fix from the VG extension) as the pipeline's core scoring logic, along with the supporting `extract_numbers()` helper.
+- Used Python's `if __name__ == "__main__":` pattern to include a self-contained test that runs only when the script is executed directly, while keeping the functions cleanly importable from other scripts (e.g., for Task 12).
+- Verified correct behavior by running the script directly and confirming expected output.
+
 ---
 
 ## Next Steps
 
-- **Task 11** — Build `similarity.py`, incorporating `hybrid_similarity()` as the core scoring function of the pipeline (reference answer → student answer → similarity score).
+- **Task 12** — Combine the full pipeline (Audio → Transcript → Similarity → Prediction) by applying `hybrid_similarity()` across all 50 rows of `transcript.csv`, producing a similarity score for every evaluation answer.
 
 ---
 
