@@ -150,11 +150,31 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
 - Used Python's `if __name__ == "__main__":` pattern to include a self-contained test that runs only when the script is executed directly, while keeping the functions cleanly importable from other scripts (e.g., for Task 12).
 - Verified correct behavior by running the script directly and confirming expected output.
 
+### Phase 5 — Complete Pipeline
+
+**Task 12 — Complete Pipeline**
+- Connected the full pipeline by applying `hybrid_similarity()` (imported from `src/similarity.py`) across all 50 rows of `transcript.csv`, comparing each reference answer against its Whisper-generated transcript.
+- Saved the combined results — including passage, question, answer, transcript, and the new `similarity` score — to `data/pipeline_results.csv`.
+- Resolved a module import path issue (`ModuleNotFoundError: No module named 'similarity'`) by adding the project's `src/` directory to Python's module search path (`sys.path.append("../src")`) from within the notebook, since notebooks and scripts don't share a working directory by default.
+- Reviewed the resulting similarity scores across all 50 rows and found the pipeline behaves as expected: near-perfect transcriptions scored close to 1.0, minor spelling variations (e.g., "Bert Bolin" vs. "Bert Bollin") scored appropriately high via the semantic path, and the earlier VG numeric-mismatch fix correctly zeroed out a genuinely wrong near-miss case.
+- **New edge case discovered:** one row (2% of the evaluation set) produced an unexpected false negative — "10,000 m2" (reference) vs. "10,000 square meters" (transcript) scored **0**, despite being semantically identical. This happened because the unit abbreviation "m2" contains a digit ("2"), which `extract_numbers()` treats as a separate number to match; since the transcript's spelled-out form ("square meters") has no digit, the number sets didn't match, and the hybrid scoring logic correctly-but-overzealously rejected it.
+  - **Decision:** given this occurred in only 1 of 50 rows, it was deliberately left unresolved for now and documented as a known limitation, following the same cost/benefit reasoning applied in Task 10 — the fix (e.g., distinguishing "unit-attached" digits from meaningful standalone numbers) would add non-trivial complexity for a low-frequency edge case, and is noted here as a candidate for future improvement rather than immediate action.
+
+### Phase 6 — Evaluation (in progress)
+
+**Task 13 — Threshold Tuning (started, not yet complete)**
+- Began building a human-labeled ground truth for the 50 pipeline results, since evaluating candidate thresholds requires knowing which answers are *actually* correct (independent of the system's own similarity score) — otherwise the evaluation would circularly validate the system against itself.
+- Reviewed all 50 rows of `data/pipeline_results.csv` (answer, transcript, and similarity score) to prepare for manual labeling.
+- **New finding discovered while investigating an unexpected low score:** row 25 ("1893" vs. Whisper's transcript "1,893") scored only **0.193** despite being numerically identical. Debugging traced this to the *semantic similarity component itself* (not the hybrid numeric-matching logic, which correctly identified the numbers as equal) — `util.cos_sim(model.encode("1893"), model.encode("1,893"))` alone returns 0.193.
+  - **Likely cause:** Sentence-BERT appears to be unreliable for very short, standalone numeric strings with minimal surrounding context — a single formatting character (a thousands-separator comma) can disproportionately affect the embedding when there's little other text to anchor the meaning.
+  - **Implication:** this is a second, distinct case (alongside the earlier "m2" unit-abbreviation issue) where the current pipeline produces a false negative on a numerically-identical answer. Both cases involve numbers, but have different root causes: the "m2" case was a number-extraction issue (a unit abbreviation being misread as a number), while this case is a pure embedding-quality issue with short numeric-only text.
+  - This will be taken into account when manually labeling ground truth for threshold selection (row 25 should be labeled as correct despite its low similarity score), and is worth discussing in the final report's limitations section.
+
 ---
 
 ## Next Steps
 
-- **Task 12** — Combine the full pipeline (Audio → Transcript → Similarity → Prediction) by applying `hybrid_similarity()` across all 50 rows of `transcript.csv`, producing a similarity score for every evaluation answer.
+- **Task 13 (continued)** — Complete manual ground-truth labeling for all 50 rows (correct/incorrect, judged independently of the system's similarity score to avoid circular evaluation), then test candidate thresholds (0.60, 0.70, 0.75, 0.80, 0.85, 0.90) against these labels to select the best cutoff.
 
 ---
 
