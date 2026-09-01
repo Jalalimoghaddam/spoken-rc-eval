@@ -169,12 +169,30 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
   - **Likely cause:** Sentence-BERT appears to be unreliable for very short, standalone numeric strings with minimal surrounding context — a single formatting character (a thousands-separator comma) can disproportionately affect the embedding when there's little other text to anchor the meaning.
   - **Implication:** this is a second, distinct case (alongside the earlier "m2" unit-abbreviation issue) where the current pipeline produces a false negative on a numerically-identical answer. Both cases involve numbers, but have different root causes: the "m2" case was a number-extraction issue (a unit abbreviation being misread as a number), while this case is a pure embedding-quality issue with short numeric-only text.
   - This will be taken into account when manually labeling ground truth for threshold selection (row 25 should be labeled as correct despite its low similarity score), and is worth discussing in the final report's limitations section.
+- **Fix implemented:** `hybrid_similarity()` in `src/similarity.py` was revised so that when the reference and transcript numbers match exactly, the function now returns a fixed score of **1.0** instead of the raw (and sometimes unreliably low) semantic similarity score. The reasoning: once the numeric content — typically the most important fact in a numeric-answer question — is confirmed correct, there's no need to trust Sentence-BERT's embedding quality for short, low-context numeric strings, which was shown to be unreliable (see the "1893" vs. "1,893" finding above).
+  - The full pipeline (Task 12) was re-run with the updated function, regenerating `data/pipeline_results.csv`. Verified the fix directly: "1893" vs. "1,893" now scores 1.0 (previously 0.193), while previously-correct behavior for non-numeric and mismatched-numeric cases remains unaffected.
+
+- Completed manual ground-truth labeling for all 50 rows, judged independently of the system's similarity score (correctness was assessed by comparing `answer` and `transcript` directly, without looking at the `similarity` column, to avoid circular evaluation). Labels were added as a `human_label` column in `data/pipeline_results.csv`.
+  - Adopted a consistent labeling policy for borderline cases: proper nouns/names with close phonetic similarity but minor spelling differences (e.g., "Pleurobrachia" vs. "Plorobracia", "William Stranahan" vs. "William Strenohin") were labeled as correct, on the reasoning that they represent close ASR mishearings rather than genuine wrong answers.
+- **Initial threshold sweep results** (accuracy against human labels, using `hybrid_similarity` scores from `pipeline_results.csv`):
+
+| Threshold | Accuracy |
+|---|---|
+| 0.60 | **0.960** (best so far) |
+| 0.70 | 0.920 |
+| 0.75 | 0.900 |
+| 0.80 | 0.880 |
+| 0.85 | 0.880 |
+| 0.90 | 0.840 |
+
+  - Accuracy decreases as the threshold increases, since many genuinely correct (non-numeric) answers have raw semantic similarity scores well below 0.9, causing them to be incorrectly rejected at higher thresholds.
+  - **Open question to resolve next session:** whether raw accuracy is the right metric for selecting the final threshold, or whether precision/recall trade-offs should be considered separately — since false rejections (marking a correct answer wrong) and false acceptances (marking a wrong answer correct) may not be equally costly in this application.
 
 ---
 
 ## Next Steps
 
-- **Task 13 (continued)** — Complete manual ground-truth labeling for all 50 rows (correct/incorrect, judged independently of the system's similarity score to avoid circular evaluation), then test candidate thresholds (0.60, 0.70, 0.75, 0.80, 0.85, 0.90) against these labels to select the best cutoff.
+- **Task 13 (continued)** — Decide on the final threshold selection criteria (accuracy vs. precision/recall trade-off), pick and justify the final threshold, then proceed to Task 14 (assigning final Correct/Incorrect/Borderline prediction labels).
 
 ---
 

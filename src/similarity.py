@@ -11,6 +11,7 @@ def extract_numbers(text):
     return set(numbers)
 
 
+
 def hybrid_similarity(reference_answer, transcript, model):
     semantic_sim = util.cos_sim(model.encode(reference_answer), model.encode(transcript)).item()
 
@@ -21,10 +22,9 @@ def hybrid_similarity(reference_answer, transcript, model):
         return semantic_sim
     else:
         if ref_numbers == trans_numbers:
-            return semantic_sim
+            return 1.0
         else:
             return 0
-
 
 if __name__ == "__main__":
    
