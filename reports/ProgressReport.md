@@ -188,11 +188,34 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
   - Accuracy decreases as the threshold increases, since many genuinely correct (non-numeric) answers have raw semantic similarity scores well below 0.9, causing them to be incorrectly rejected at higher thresholds.
   - **Open question to resolve next session:** whether raw accuracy is the right metric for selecting the final threshold, or whether precision/recall trade-offs should be considered separately — since false rejections (marking a correct answer wrong) and false acceptances (marking a wrong answer correct) may not be equally costly in this application.
 
+- **Resolved the accuracy-vs-precision/recall question** by computing precision and recall (not just accuracy) at each candidate threshold:
+
+| Threshold | Accuracy | Precision | Recall |
+|---|---|---|---|
+| 0.60 | **0.960** | 0.977 | **0.977** |
+| 0.70 | 0.920 | 0.976 | 0.930 |
+| 0.75 | 0.900 | 0.975 | 0.907 |
+| 0.80 | 0.880 | 0.974 | 0.884 |
+| 0.85 | 0.880 | 1.000 | 0.860 |
+| 0.90 | 0.840 | 1.000 | 0.814 |
+
+  - A clear trade-off pattern emerged: higher thresholds improve precision (up to a perfect 1.000 at 0.85–0.90) but steadily reduce recall (down to 0.814 at 0.90), since stricter cutoffs increasingly reject genuinely correct answers whose raw semantic similarity happens to fall below the threshold.
+  - **Decision rationale:** before choosing, the two error types were explicitly weighed — a false rejection (marking a correct spoken answer as wrong) unfairly penalizes an individual student, while a false acceptance (marking a wrong answer as correct) undermines the grading system's overall validity and could indirectly disadvantage other students. Both were judged as meaningful costs, with false rejection considered somewhat more directly unfair to the affected student.
+  - **Final threshold selected: 0.60** — it achieves the highest accuracy and the best balance of precision and recall (both ≈0.977, nearly equal), avoiding the recall degradation seen at higher thresholds, consistent with prioritizing not unfairly rejecting correct answers.
+  - **Limitation acknowledged:** this threshold was tuned on only 50 human-labeled examples; differences between candidate thresholds correspond to just 2–3 disagreements at this sample size, so the selection, while well-reasoned, is not highly statistically robust and could shift with a larger labeled evaluation set. This is noted as a direction for future work.
+
+**Task 14 — Prediction Labels**
+- Defined a three-way classification rule using the selected threshold (0.60) with a symmetric ±0.05 margin to create a "Borderline" band: similarity ≥ 0.65 → Correct, ≤ 0.55 → Incorrect, otherwise → Borderline.
+- Applied this rule to all 50 rows, adding a `prediction` column to `data/pipeline_results.csv`. Distribution: 41 Correct, 7 Incorrect, 2 Borderline.
+- **Validation of the Borderline definition:** the two rows classified as Borderline ("Pleurobrachia" vs. "Plorobracia", and "William Stranahan" vs. "William Strenohin") were exactly the two cases the human labeler had explicitly been uncertain about during manual labeling in Task 13 — proper nouns with close-but-imperfect phonetic matches. This is a meaningful sanity check: the system's numeric uncertainty band independently aligned with genuine human uncertainty, without the classifier having any access to that hesitation, suggesting the Borderline category is capturing genuinely ambiguous cases rather than being an arbitrary numeric band.
+
+**Phase 5 (Complete Pipeline) is now complete.**
+
 ---
 
 ## Next Steps
 
-- **Task 13 (continued)** — Decide on the final threshold selection criteria (accuracy vs. precision/recall trade-off), pick and justify the final threshold, then proceed to Task 14 (assigning final Correct/Incorrect/Borderline prediction labels).
+- **Task 15** — Build a formal evaluation script computing accuracy, precision, recall, and F1 using the final `prediction` labels against `human_label`.
 
 ---
 
