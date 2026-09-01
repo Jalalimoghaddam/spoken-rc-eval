@@ -211,11 +211,46 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
 
 **Phase 5 (Complete Pipeline) is now complete.**
 
+### Phase 6 — Evaluation
+
+**Task 15 — Formal Evaluation Script**
+- Created `evaluation/evaluate.py`, a standalone script computing accuracy, precision, recall, and F1 score by comparing the pipeline's final predictions against the human-labeled ground truth.
+- Decided to treat "Borderline" predictions as "Correct" for the purpose of binary metric calculation, consistent with the project's established preference (from Task 13's threshold discussion) for erring toward not unfairly rejecting ambiguous answers.
+- **Final evaluation results (50-example evaluation set):**
+
+| Metric | Score |
+|---|---|
+| Accuracy | 0.960 |
+| Precision | 0.977 |
+| Recall | 0.977 |
+| F1 Score | 0.977 |
+
+  Precision and recall are nearly identical, reflecting the balanced threshold selection made in Task 13 — the system neither over-rejects correct answers nor over-accepts incorrect ones on this evaluation set.
+
+**Task 16 — Error Analysis**
+- Categorized all 9 non-Correct predictions (7 Incorrect, 2 Borderline) by root cause:
+
+| Row | Answer | Transcript | Category |
+|---|---|---|---|
+| "Lower Lorraine" | → "Lower the rain." | ASR error |
+| "10,000 m2" | → "10,000 square meters." | **Semantic/pipeline model error** (correctly transcribed, but the hybrid numeric-matching logic incorrectly rejected it — the known "m2" edge case) |
+| "Beyoncé" | → "Be on say." | ASR error |
+| "Pleurobrachia" | → "Plorobracia" | ASR error / Ambiguous (Borderline; also uncertain during human labeling) |
+| "Mi'kmaq and the Abenaki" | → "Me, Kamek, and I'll be knocking." | ASR error |
+| "gas turbines" | → "Gast her buns." | ASR error |
+| "Thoreau" | → "Dora." | ASR error |
+| "William Stranahan" | → "William Strenohin." | ASR error / Ambiguous (Borderline; also uncertain during human labeling) |
+| "Nintendo" | → "念獵獵" (non-Latin script) | ASR error (severe, isolated failure — see investigation below) |
+
+- **Summary: 8 of 9 errors (89%) were ASR errors**, meaning Whisper mistranscribed the spoken answer; only 1 of 9 was a pipeline/model error (the previously documented "m2" numeric-extraction edge case). This indicates the current bottleneck in system accuracy is primarily speech recognition quality (particularly on rare proper nouns and specialized terminology), not the semantic similarity or hybrid scoring logic.
+- **Notable validation:** the two Borderline cases were also the two cases the human labeler was genuinely uncertain about, reinforcing that the Borderline category captures real ambiguity (also noted in Task 14).
+- **Investigated the severe "Nintendo" → "念獵獵" failure**, hypothesizing it might relate to which TTS engine generated the audio (gTTS vs. pyttsx3). Cross-tabulating predictions by TTS source across all 50 rows showed only a small difference (gTTS: 21 Correct/3 Incorrect/1 Borderline; pyttsx3: 20 Correct/4 Incorrect/1 Borderline) — not a strong enough gap to support a systematic engine-quality effect at this sample size. The Nintendo failure is best characterized as an isolated outlier rather than evidence of a general pyttsx3 weakness.
+
 ---
 
 ## Next Steps
 
-- **Task 15** — Build a formal evaluation script computing accuracy, precision, recall, and F1 using the final `prediction` labels against `human_label`.
+- **Task 17** — Create summary tables (metrics table, confusion matrix, example predictions) to consolidate Phase 6 results for the final report.
 
 ---
 
