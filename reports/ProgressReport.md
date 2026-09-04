@@ -246,11 +246,25 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
 - **Notable validation:** the two Borderline cases were also the two cases the human labeler was genuinely uncertain about, reinforcing that the Borderline category captures real ambiguity (also noted in Task 14).
 - **Investigated the severe "Nintendo" → "念獵獵" failure**, hypothesizing it might relate to which TTS engine generated the audio (gTTS vs. pyttsx3). Cross-tabulating predictions by TTS source across all 50 rows showed only a small difference (gTTS: 21 Correct/3 Incorrect/1 Borderline; pyttsx3: 20 Correct/4 Incorrect/1 Borderline) — not a strong enough gap to support a systematic engine-quality effect at this sample size. The Nintendo failure is best characterized as an isolated outlier rather than evidence of a general pyttsx3 weakness.
 
+**Task 17 — Summary Tables**
+- Built a confusion matrix comparing final predictions (Correct/Borderline treated as positive) against human labels:
+
+|  | Predicted: Incorrect | Predicted: Correct |
+|---|---|---|
+| **Actual: Incorrect** | 6 (True Negative) | 1 (False Positive) |
+| **Actual: Correct** | 1 (False Negative) | 42 (True Positive) |
+
+  Only 2 misclassifications out of 50 (one of each error type), reflecting the balanced threshold selected in Task 13.
+- Consolidated the formal metrics table (Accuracy 0.960, Precision 0.977, Recall 0.977, F1 0.977) and a set of representative example predictions (correct, incorrect, and both borderline cases) alongside the confusion matrix.
+- Saved all three as CSV files in `evaluation/`: `metrics_table.csv`, `confusion_matrix.csv`, and `example_predictions.csv`, ready for direct inclusion in the final report.
+
+**Phase 6 (Evaluation) is now complete.**
+
 ---
 
 ## Next Steps
 
-- **Task 17** — Create summary tables (metrics table, confusion matrix, example predictions) to consolidate Phase 6 results for the final report.
+- **Task 18** — Build a Gradio or Streamlit demo interface: record voice, show transcript, show similarity score, show prediction.
 
 ---
 
