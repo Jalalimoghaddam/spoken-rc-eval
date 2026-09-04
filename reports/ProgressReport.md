@@ -260,11 +260,22 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
 
 **Phase 6 (Evaluation) is now complete.**
 
+### Phase 7 — Demo
+
+**Task 18 — Gradio Demo**
+- Chose Gradio over Streamlit for the interactive demo, since it is purpose-built for ML input/output types (audio, text) with minimal boilerplate, well-suited to this project's record → transcribe → score → predict workflow.
+- Designed the demo around a dropdown of questions drawn from `data/eval_set.csv` (rather than free-text entry), so the reference answer, question, and passage are always consistent and don't require the user to type anything error-prone.
+- Built `demo/app.py`, wiring together the full pipeline into a single interactive interface: a question dropdown, a microphone recorder, and five live outputs (passage, reference answer, transcript, similarity score, and Correct/Incorrect/Borderline prediction) using the same `hybrid_similarity()` and threshold logic developed in Phases 4–6.
+- **Debugged a significant audio-recording issue:** the demo initially received `None` for every microphone recording, regardless of whether audio was successfully recorded and played back in the browser. Root-caused through a minimal isolated reproduction (a standalone test app with only an audio input) to two contributing factors:
+  1. The Gradio app was initially being tested inside VS Code's embedded browser/preview rather than a full external browser — microphone access requires a genuine browser context, which embedded editor previews do not reliably provide.
+  2. Explicitly specifying `format="wav"` on the `gr.Audio` component (rather than leaving the format unspecified) was needed for the recorded file to be correctly saved and passed through to the backend.
+- Verified the working demo end-to-end with a live example: the reference answer was "1893", and a deliberately incorrect number ("1982") was spoken to test the pipeline's rejection behavior. Whisper correctly transcribed the spoken "1982", and the pipeline correctly scored this as 0.000 similarity and classified it as "Incorrect" — confirming `hybrid_similarity()`'s numeric-mismatch logic works correctly on live, real-time microphone input, not just the pre-recorded evaluation set.
+
 ---
 
 ## Next Steps
 
-- **Task 18** — Build a Gradio or Streamlit demo interface: record voice, show transcript, show similarity score, show prediction.
+- **Task 19** — Improve the demo interface: better layout, error messages (e.g., handling when no audio is recorded), and a reset button.
 
 ---
 
