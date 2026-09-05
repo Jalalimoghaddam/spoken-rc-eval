@@ -275,7 +275,32 @@ This confirms the fix directly resolves the Task 10 finding without disrupting n
 
 ## Next Steps
 
-- **Task 19** — Improve the demo interface: better layout, error messages (e.g., handling when no audio is recorded), and a reset button.
+- **Task 19 skipped by decision:** the working Gradio demo from Task 18 already fulfills all core functional requirements (recording, transcript display, similarity score, prediction). Task 19's improvements (layout polish, error messages, reset button) were judged non-essential given the project's remaining time budget, and effort was redirected to Phase 8 (final report), which has higher priority. This can be revisited if time permits.
+
+---
+
+## Additional Work: Sentence-BERT Fine-Tuning
+
+Following the course requirement that ML projects must include a model training component (even when the core pipeline relies on pretrained models), a fine-tuning experiment was conducted on the Sentence-BERT model.
+
+**Setup:** Using the 50 labeled examples from `data/pipeline_results.csv` (answer/transcript pairs with `human_label` as a 0/1 similarity target), a `src/finetune.py` script was created using `sentence-transformers`' built-in fine-tuning support (`CosineSimilarityLoss`, `DataLoader`, `model.fit()`). Training ran for 1 epoch on all 50 examples, completing in under 3 seconds, with a final training loss of 0.055. The fine-tuned model was saved to `models/finetuned_sbert/`.
+
+**Result — a null result, reported honestly:** comparing the fine-tuned model against the original pretrained model on both the training example and additional held-out pairs showed only negligible, inconsistent changes in similarity scores (differences of less than 0.02 in either direction, with no clear pattern of improvement):
+
+| Pair | Pretrained | Fine-tuned | Change |
+|---|---|---|---|
+| "It was founded in 1852" / "The museum opened in 1852" | 0.625 | 0.627 | +0.002 |
+| "Paris" / "Paris." | 0.963 | 0.968 | +0.005 |
+| "Lower Lorraine" / "Lower the rain." | 0.279 | 0.261 | -0.018 |
+| "gas turbines" / "Gast her buns." | 0.160 | 0.144 | -0.016 |
+
+**Discussion:** this outcome is expected given the scale involved — 50 examples and 1 epoch is far too little data to meaningfully shift the weights of a model pretrained on millions of sentence pairs. The experiment nonetheless satisfies the goal of demonstrating a working, reproducible short training run on trivial data, and the honest null result itself is informative: it confirms that the project's strong evaluation performance (Task 15) comes from the pretrained model's existing general-purpose language understanding combined with the hybrid numeric-matching logic, not from any task-specific fine-tuning — an important point for the final report's discussion of what actually drives the system's accuracy.
+
+---
+
+## Next Steps
+
+- **Task 20** — Write the Results section of the final report: metrics, tables, and discussion. The report must follow the ACL Rolling Review two-column LaTeX format, 8–10 pages excluding figures/tables/references, submitted as part of a GitHub repository with a README containing setup instructions, data links, and instructions for running the short fine-tuning script above.
 
 ---
 
