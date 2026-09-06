@@ -298,9 +298,24 @@ Following the course requirement that ML projects must include a model training 
 
 ---
 
+## Task 20 Progress: Final Report (ACL Format)
+
+Course requirements were clarified mid-project: the final report must follow the ACL Rolling Review two-column LaTeX format (8–10 pages excluding figures/tables/references), submitted as part of a GitHub repository with a README (setup instructions, data links, and instructions for running a short training/fine-tuning epoch on trivial data), and tested on the mltgpu servers.
+
+- Set up the official ACL LaTeX template via Overleaf and wrote the full report content, section by section: Abstract, Introduction, Related Work (citing prior Automated Short Answer Grading literature), Data, Methods (including a numeric-extraction pseudocode listing), Results (threshold selection, final metrics, confusion matrix, error analysis, fine-tuning experiment), Discussion, Conclusion, Reproducibility, Implementation and Software Engineering Considerations, Development Environment and Practical Challenges, Limitations, and Ethical Considerations.
+- Populated `custom.bib` with real references (Whisper, Sentence-BERT, SQuAD, and several Automated Short Answer Grading papers).
+- Added the project's GitHub repository link (`https://github.com/Jalalimoghaddam/spoken-rc-eval`) in an Appendix section.
+- Report currently stands at 8 pages, meeting the minimum of the required 8–10 page range.
+- **Reminder for Task 22 (README):** the course's "provide instructions for running a short training epoch" requirement is satisfied by the fine-tuning work already done (`src/finetune.py`, 1 epoch, 50 examples, completes in under 3 seconds), but the actual run instructions (e.g., `python src/finetune.py`) still need to be written into the repository's README — not yet done.
+- Not yet done: downloading the final `.tex`/`.bib`/PDF files from Overleaf into the local repository, and a final full read-through proofreading pass (in progress).
+
+---
+
 ## Next Steps
 
-- **Task 20** — Write the Results section of the final report: metrics, tables, and discussion. The report must follow the ACL Rolling Review two-column LaTeX format, 8–10 pages excluding figures/tables/references, submitted as part of a GitHub repository with a README containing setup instructions, data links, and instructions for running the short fine-tuning script above.
+- **Task 20 (continued)** — Finish proofreading the report, download the LaTeX source and compiled PDF from Overleaf into the project repository, and commit.
+- **Task 21** — Write the Conclusion section (if not already finalized) addressing whether the method worked, limitations, and future improvements — largely already drafted within the Discussion/Conclusion/Limitations sections above.
+- **Task 22** — Final cleanup: remove unused files (e.g., the stray `anaconda_projects` folder), write the README (including fine-tuning run instructions per the reminder above and a data download link), and prepare the final submission.
 
 ---
 
