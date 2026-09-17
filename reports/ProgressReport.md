@@ -307,15 +307,25 @@ Course requirements were clarified mid-project: the final report must follow the
 - Added the project's GitHub repository link (`https://github.com/Jalalimoghaddam/spoken-rc-eval`) in an Appendix section.
 - Report currently stands at 8 pages, meeting the minimum of the required 8–10 page range.
 - **Reminder for Task 22 (README):** the course's "provide instructions for running a short training epoch" requirement is satisfied by the fine-tuning work already done (`src/finetune.py`, 1 epoch, 50 examples, completes in under 3 seconds), but the actual run instructions (e.g., `python src/finetune.py`) still need to be written into the repository's README — not yet done.
-- Not yet done: downloading the final `.tex`/`.bib`/PDF files from Overleaf into the local repository, and a final full read-through proofreading pass (in progress).
+- Full read-through proofreading pass completed; several broken LaTeX cross-references (`\ref{}` pointing to undefined labels) were found and fixed, one ethics paragraph was strengthened to reflect both directions of grading unfairness, and the fine-tuning conclusion was revised to avoid overgeneralizing from a 50-example null result. LaTeX source, bibliography, and compiled PDF have been downloaded from Overleaf and committed to the GitHub repository.
+
+---
+
+## Pre-Submission Checklist
+
+- [x] Download `.tex`/`.bib`/PDF from Overleaf and commit to GitHub repo
+- [ ] Write `README.md`: environment setup instructions, SQuAD dataset download link, instructions for running each pipeline stage, and instructions for running the short fine-tuning script (`python src/finetune.py`) — required by the course's model-training expectation
+- [ ] Final cleanup: remove the stray `anaconda_projects` folder and any other leftover non-project files
+- [ ] Test that the code runs on the course's mltgpu servers, as explicitly required; check for any Windows-specific path assumptions (e.g., OneDrive paths) that might not hold there
+- [ ] Add a short paragraph (in the report or README) explicitly justifying deviations from the original written project plan (e.g., using TTS instead of recorded speech, choosing Gradio) — required by the course instructions
+- [ ] Re-check final page count (target 8–10 pages) after any further additions
 
 ---
 
 ## Next Steps
 
-- **Task 20 (continued)** — Finish proofreading the report, download the LaTeX source and compiled PDF from Overleaf into the project repository, and commit.
 - **Task 21** — Write the Conclusion section (if not already finalized) addressing whether the method worked, limitations, and future improvements — largely already drafted within the Discussion/Conclusion/Limitations sections above.
-- **Task 22** — Final cleanup: remove unused files (e.g., the stray `anaconda_projects` folder), write the README (including fine-tuning run instructions per the reminder above and a data download link), and prepare the final submission.
+- **Task 22** — Final cleanup: remove unused files (e.g., the stray `anaconda_projects` folder), write the README (including fine-tuning run instructions and a data download link), verify code runs on mltgpu servers, add a deviation-justification note, and prepare the final submission.
 
 ---
 
