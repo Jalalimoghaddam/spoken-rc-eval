@@ -9,3 +9,4 @@ pyttsx3
 pywin32; platform_system == "Windows"
 gradio
 datasets
+accelerate>=1.1.0

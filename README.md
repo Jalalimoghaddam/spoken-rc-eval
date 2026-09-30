@@ -1,5 +1,3 @@
-# spoken-rc-eval
-Spoken Reading Comprehension Evaluation using ASR + Semantic Similarity
 # Spoken Reading Comprehension Evaluation
 
 Automatically grading short **spoken** answers to reading comprehension questions using automatic speech recognition (Whisper) and semantic similarity (Sentence-BERT), rather than exact-text matching.
@@ -96,6 +94,14 @@ python src/finetune.py
 ```
 
 This trains for 1 epoch on `data/pipeline_results.csv` and saves the result to `models/finetuned_sbert/`. As discussed in the report (Section 5.4), this small-scale run yields a null result — expected given the small amount of data — and is included to demonstrate a working, reproducible training procedure rather than to improve accuracy.
+
+**On multi-GPU servers** (e.g., machines with multiple NVIDIA MIG devices, such as the course's `mltgpu` servers): if `CUDA_VISIBLE_DEVICES` is left unset, `sentence-transformers` may attempt to use multi-GPU `DataParallel` training and hang indefinitely rather than erroring out. Force CPU-only execution explicitly:
+
+```bash
+CUDA_VISIBLE_DEVICES="" python src/finetune.py
+```
+
+This was verified to run successfully on the course's `mltgpu-2` server (1.95 seconds, training loss 0.050), confirming the project's code and dependencies work correctly outside the original Windows development environment.
 
 ## Interactive Demo
 
